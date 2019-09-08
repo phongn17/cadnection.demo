@@ -1,0 +1,451 @@
+<!-- -------------------------------------------- -->
+<!-- Build the data model                         -->
+<!-- -------------------------------------------- -->
+
+<!-- Define a search platform to fetch data from -->
+<search:platform var="platform" conf="platforms.fusion.data"></search:platform>
+
+<!-- Search query based on the user's input -->
+<search:query var="query" parameters="*" results-per-page="12"></search:query>
+
+<track:query query="query"></track:query>
+<!-- Send query to platform and retrieve documents back -->
+<search:response var="response" platform="platform" query="query">
+	<widget:spinner></widget:spinner>
+</search:response>
+
+
+<!-- -------------------------------------------- -->
+<!-- Define the view                              -->
+<!-- -------------------------------------------- -->
+
+<helper:title title="{{ $root.application_name }}" ng-if="$root.application_name"></helper:title>
+
+<!-- HEADER -->
+<layout:include file="views/partials/header.tpl.html" action="search"></layout:include>
+
+<!-- CONTENT -->
+<layout:grid styling="row-offcanvas" class="flex-1">
+
+	<!-- Animate page when response received -->
+	<layout:animate animation="animate-fadeInUp" on="response" layout-grid>
+
+		<!-- CONTENT > SIDEBAR -->
+		<layout:block md="1-5" lg="1-5" drawer="left" id="sidebar" styling="blocksidebar border right">
+			<layout:sidebar>
+				<layout:block styling="border bottom" style="border-color: #CB5252; border-width: 5px; padding-left: 14px;">
+					<h3 styling="float: left">
+						<b>
+                            Refinements
+                        </b>
+					</h3>
+				</layout:block>
+				<layout:box>
+
+					<!-- List facets and give them intuitive labels -->
+          <search:facet-list facet-names="FileExtension_s=File Extension" response="response" platform="platform" query="query" styling="facet-list facet-list-wrappedheader">
+            <search:facet facet-name="FileExtension_s" show="12" search-enabled="true" platform="platform" query="query" max-characters="40" show-more="24" collapsible="true" facet-field="FileExtension_t"></search:facet>
+            <search:facet show="12" max-characters="40" show-more="24" collapsible="true"></search:facet>
+        </search:facet-list>
+
+				</layout:box>
+			</layout:sidebar>
+		</layout:block>
+
+		<!-- CONTENT > RESULTS -->
+		<layout:block md="2-3" lg="3-4" styling="bg-white">
+			<layout:box padding-left="2" padding-right="2">
+				<!-- Results Wrapper -->
+				<layout:block>
+					<layout:block styling="border bottom" style="border-color: #CB5252; border-width: 5px; padding-left: 20px;">
+						<h3 styling="float: left">
+							<b>
+                                Search Results
+                            </b>
+							<div style="float: right; height: 30px">
+								<search:pagination response="response" max-pages="3" styling="pagination-wrapper-center xs" style="float:right" padding-left="1"></search:pagination>
+								<search:response-statistics response="response" style="float: right; font-size: 15px"></search:response-statistics>
+							</div>
+						</h3>
+					</layout:block>
+					<layout:grid>
+
+						<!-- Tabs, View Options, Response Stats, Selected Facets -->
+						<layout:block padding-top="1">
+
+							<!--<layout:grid>-->
+							<!--<layout:block md="3-4">-->
+							<!--&lt;!&ndash; Specify a facet to show tabs from &ndash;&gt;-->
+							<!--<search:tabs response="response" field-name="data_sourceX_s" all-label="All" platform="platform" query="query"-->
+							<!--tabs="Website,Sharepoint,GoogleDrive,People,Q&A"></search:tabs>-->
+							<!--</layout:block>-->
+							<!--<layout:block md="1-4" styling="center-content sortoptions-block">-->
+							<!--<layout:controls class="right">-->
+							<!--<search:sort response="response" fields="field1=Field 1,field2=Field 2"></search:sort>-->
+							<!--</layout:controls>-->
+							<!--</layout:block>-->
+							<!--</layout:grid>-->
+
+							<div padding-top="1">
+								<search:breadcrumbs query="query" group-by-field="true" exclude="tabField"></search:breadcrumbs>
+							</div>
+						</layout:block>
+
+						<!-- Results -->
+						<layout:block>
+							<track:clicks query="query">
+
+								<!-- Show messages of type "redirect" from Fusion - these contain suggestions for external sites. -->
+								<!-- You can add as many message lists tags as you like on the page, for showing other types of messages. -->
+								<search:message-list response="response" title="You might also want to look at" type="redirect"></search:message-list>
+
+								<search:result-list response="response">
+									<search:result styling="border bottom" style="border-color: #CB5252; border-width: 2px" padding-bottom="1">
+										<layout:grid>
+											<layout:block md="1-6" padding-right="1" styling="center-content">
+                                                <div style="border-style: groove; border-color: darkgrey">
+                                                    <img src="{{(result | field:'Thumbnail_s' | actualValue)}}" height="125"/>
+                                                </div>
+											</layout:block>
+                                            <layout:block md="5-6" padding-right="1">
+                                                <div style="display: inline; padding-right: 15px">
+                                                    <search:field name="Name_s" styling="title" urlfield default-value="{{result.id}}" style="display:inline-block"></search:field>
+                                                </div>
+                                                <div widget-open-modal="{{result.id}}" style="display:inline-block; padding-right: 3px">
+                                                    <widget:icon icon="zoom-in"></widget:icon>
+                                                    <widget:modal id="{{result.id}}" title="{{result.fields.Name_s | actual}}">
+                                                        <layout:box style="height:800px; width:800px">
+                                                            <div id="content">
+                                                                <div id="myContainer"></div>
+
+                                                                <div id="toolBar">
+                                                                    <div class="toolbar-tools">
+                                                                        <div id="home-button" title="Reset Camera" data-operatorclass="toolbar-home" class="hoops-tool">
+                                                                            <div class="tool-icon"></div>
+                                                                        </div>
+                                                                        <div id="tool_separator_1" class="tool-separator"></div>
+                                                                        <div id="view-button" title="Camera Menu" data-operatorclass="toolbar-camera" data-submenu="view-submenu" class="hoops-tool toolbar-menu">
+                                                                            <div class="tool-icon"></div>
+                                                                        </div>
+                                                                        <div id="edgeface-button" title="Wireframe on Shaded" data-operatorclass="toolbar-wireframeshaded" data-submenu="edgeface-submenu" class="hoops-tool toolbar-menu">
+                                                                            <div class="tool-icon"></div>
+                                                                        </div>
+                                                                        <div id="tool_separator_2" class="tool-separator"></div>
+                                                                        <div id="redline-button" title="Redline Note" data-operatorclass="toolbar-redline-note" data-submenu="redline-submenu" class="hoops-tool toolbar-radio">
+                                                                            <div class="smarrow"></div>
+                                                                            <div class="tool-icon"></div>
+                                                                        </div>
+                                                                        <div id="click-button" title="Select" data-operatorclass="toolbar-select" data-submenu="click-submenu" class="hoops-tool toolbar-radio active-tool">
+                                                                            <div class="smarrow"></div>
+                                                                            <div class="tool-icon"></div>
+                                                                        </div>
+                                                                        <div id="camera-button" title="Orbit Camera" data-operatorclass="toolbar-orbit" data-submenu="camera-submenu" class="hoops-tool toolbar-menu">
+                                                                            <div class="tool-icon"></div>
+                                                                        </div>
+                                                                        <div id="tool_separator_3" class="tool-separator"></div>
+                                                                        <div id="explode-button" title="Explode Menu" data-operatorclass="toolbar-explode" data-submenu="explode-slider" class="hoops-tool toolbar-menu-toggle">
+                                                                            <div class="tool-icon"></div>
+                                                                        </div>
+                                                                        <div id="cuttingplane-button" title="Cutting Plane Menu" data-operatorclass="toolbar-cuttingplane" data-submenu="cuttingplane-submenu" class="hoops-tool toolbar-menu-toggle">
+                                                                            <div class="tool-icon"></div>
+                                                                        </div>
+                                                                        <div id="tool_separator_4" class="tool-separator"></div>
+                                                                        <div id="snapshot-button" title="Snapshot" data-operatorclass="toolbar-snapshot" class="hoops-tool">
+                                                                            <div class="tool-icon"></div>
+                                                                        </div>
+                                                                        <div id="settings-button" title="Settings" data-operatorclass="toolbar-settings" class="hoops-tool">
+                                                                            <div class="tool-icon"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div id="submenus">
+                                                                        <div id="redline-submenu" data-button="redline-button" class="toolbar-submenu submenus">
+                                                                            <table>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="redline-circle-button" title="Redline Circle" data-operatorclass="toolbar-redline-circle" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div id="redline-rectangle-button" title="Redline Rectangle" data-operatorclass="toolbar-redline-rectangle" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="redline-note" title="Redline Note" data-operatorclass="toolbar-redline-note" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div id="redline-freehand" title="Redline Freehand" data-operatorclass="toolbar-redline-freehand" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </table>
+                                                                        </div>
+                                                                        <div id="camera-submenu" data-button="camera-button" class="toolbar-submenu submenus">
+                                                                            <table>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="operator-camera-walk" title="Walk" data-operatorclass="toolbar-walk" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="operator-camera-turntable" title="Turntable" data-operatorclass="toolbar-turntable" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="operator-camera-orbit" title="Orbit Camera" data-operatorclass="toolbar-orbit" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </table>
+                                                                        </div>
+                                                                        <div id="edgeface-submenu" data-button="edgeface-button" class="toolbar-submenu submenus">
+                                                                            <table>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="viewport-wireframe-on-shaded" title="Shaded With Lines" data-operatorclass="toolbar-wireframeshaded" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="viewport-shaded" title="Shaded" data-operatorclass="toolbar-shaded" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div title="Hidden Line" data-operatorclass="toolbar-hidden-line" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="viewport-wireframe" title="Wireframe" data-operatorclass="toolbar-wireframe" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="viewport-xray" title="XRay" data-operatorclass="toolbar-xray" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </table>
+                                                                        </div>
+                                                                        <div id="view-submenu" class="toolbar-submenu submenus">
+                                                                            <table>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="view-face" title="Orient Camera To Selected Face" data-operatorclass="toolbar-face" class="submenu-icon disabled"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="view-iso" title="Iso View" data-operatorclass="toolbar-iso" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div id="view-ortho" title="Orthographic Projection" data-operatorclass="toolbar-ortho" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div id="view-persp" title="Perspective Projection" data-operatorclass="toolbar-persp" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="view-left" title="Left View" data-operatorclass="toolbar-left" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div id="view-right" title="Right View" data-operatorclass="toolbar-right" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div id="view-bottom" title="Bottom View" data-operatorclass="toolbar-bottom" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="view-front" title="Front View" data-operatorclass="toolbar-front" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div id="view-back" title="Back View" data-operatorclass="toolbar-back" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div id="view-top" title="Top View" data-operatorclass="toolbar-top" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </table>
+                                                                        </div>
+                                                                        <div id="click-submenu" data-button="click-button" class="toolbar-submenu submenus">
+                                                                            <table>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="note-button" title="Create Note-Pin" data-operatorclass="toolbar-note" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="measure-angle-between-faces" title="Measure Angle Between Faces" data-operatorclass="toolbar-measure-angle" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div id="measure-distance-between-faces" title="Measure Distance Between Faces" data-operatorclass="toolbar-measure-distance" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="measure-edges" title="Measure Edges" data-operatorclass="toolbar-measure-edge" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div id="measure-point-to-point" title="Measure Point to Point" data-operatorclass="toolbar-measure-point" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="select-parts" title="Select Parts" data-operatorclass="toolbar-select" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div id="area-select" title="Area Select" data-operatorclass="toolbar-area-select" class="submenu-icon"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </table>
+                                                                        </div>
+                                                                        <div id="explode-slider" class="toolbar-submenu slider-menu submenus">
+                                                                            <div id="explosion-slider" style="height:90px;" class="toolbar-slider"></div>
+                                                                        </div>
+                                                                        <div id="cuttingplane-submenu" class="toolbar-submenu cutting-plane submenus no-modal">
+                                                                            <table>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="cuttingplane-face" title="Create Cutting Plane On Selected Face" data-plane="face" data-operatorclass="toolbar-cuttingplane-face" class="toolbar-cp-plane submenu-icon disabled"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="cuttingplane-x" title="Cutting Plane X" data-plane="x" data-operatorclass="toolbar-cuttingplane-x" class="toolbar-cp-plane submenu-icon"></div>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div id="cuttingplane-section" title="Cutting Plane Visibility Toggle" data-plane="section" data-operatorclass="toolbar-cuttingplane-section" class="toolbar-cp-plane submenu-icon disabled"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="cuttingplane-y" title="Cutting Plane Y" data-plane="y" data-operatorclass="toolbar-cuttingplane-y" class="toolbar-cp-plane submenu-icon"></div>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div id="cuttingplane-toggle" title="Cutting Plane Section Toggle" data-plane="toggle" data-operatorclass="toolbar-cuttingplane-toggle" class="toolbar-cp-plane submenu-icon disabled"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div id="cuttingplane-z" title="Cutting Plane Z" data-plane="z" data-operatorclass="toolbar-cuttingplane-z" class="toolbar-cp-plane submenu-icon"></div>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div id="cuttingplane-reset" title="Cutting Plane Reset" data-plane="reset" data-operatorclass="toolbar-cuttingplane-reset" class="toolbar-cp-plane submenu-icon disabled"></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </table>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </layout:box>
+                                                    </widget:modal>
+                                                </div>
+                                                <div widget-open-modal="{{result.id}}t" style="display:inline-block; padding-right: 3px">
+                                                    <widget:icon icon="doc-text-inv"></widget:icon>
+                                                    <widget:modal id="{{result.id}}t" title="{{result.fields.Name_s | actual}}">
+                                                        <layout:box style="width: 700px; height: 500px"> <!--style="width: 1200px"-->
+                                                            <toggle:controls labels="Properties, Image, Relationships, Where Used, Composed-Of" panes="panes"></toggle:controls>
+                                                            <toggle:panes id="panes">
+                                                                <toggle:pane>
+                                                                    <table style="width:100%">
+                                                                        <tr>
+                                                                            <th style="padding-right: 100px"><b>Tag</b></th>
+                                                                            <th><b>Value</b></th>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td><b>Name</b></td>
+                                                                            <td>{{result.fields.Name_s | actual}}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td><b>Description</b></td>
+                                                                            <td word-wrap: break-word>{{result.fields.Description_s | actual}}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td><b>Source</b></td>
+                                                                            <td>{{result.fields.Source_s | actual}}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td><b>Extension</b></td>
+                                                                            <td>{{result.fields.File_Extension_s | actual}}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td><b>Make/Buy</b></td>
+                                                                            <td>{{result.fields.Part_Type_s | actual}}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td><b>Date Modified</b></td>
+                                                                            <td>8/23/2019</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td><b>Size</b></td>
+                                                                            <td>26 Mb</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td><b>Author</b></td>
+                                                                            <td>vdR Group</td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </toggle:pane>
+                                                                <toggle:pane>
+                                                                    <div styling="center-content">
+                                                                        <img src="{{result.fields.Thumbnail_s | actual}}" style="width:80%;height:80%"/>
+                                                                    </div>
+                                                                </toggle:pane>
+                                                                <toggle:pane>
+                                                                    <h2>Relationships</h2>
+                                                                </toggle:pane>
+                                                                <toggle:pane>
+                                                                    <h2>Where Used</h2>
+                                                                </toggle:pane>
+                                                                <toggle:pane>
+                                                                    <h2>Assembly Parts</h2>
+                                                                </toggle:pane>
+                                                            </toggle:panes>
+                                                        </layout:box>
+                                                    </widget:modal>
+                                                </div>
+                                                <!--<div widget-open-modal="download" style="display:inline-block">
+                                                    <widget:icon icon="download"></widget:icon>
+                                                    <widget:modal title="Download File" id="download">
+                                                        <search:platform var="" conf=""></search:platform>
+                                                        <search:query var="" query=""></search:query>
+                                                        <search:response var="" query="" platform=""></search:response>
+                                                        <a href="" download>
+                                                            <img src="" alt="Download File">
+                                                        </a>
+                                                    </widget:modal>
+                                                </div>-->
+                                                <div>
+                                                    <p style="float:left; padding-right: 115px; color: #595959">Summary</p>
+                                                    <search:field name="Description_t" styling="description" max-characters="150" default-value="<i>No description</i>"></search:field>
+                                                </div>
+                                                <layout:block md="1-2" padding-right="1" style="float: left">
+                                                    <search:field name="Application_s" label="Application" styling="label-left"></search:field>
+                                                    <!--<search:field name="Make_Buy_s" label="Make/Buy" styling="label-left"></search:field>-->
+                                                    <search:field name="Part_Type_s" label="Part/Type" styling="label-left" class="labelcolor"></search:field>
+                                                    <div>
+                                                        <span style="padding-right: 10px"><font size="2">8/5/2019</font></span>
+                                                        <span><font size="2">26 Mb</font></span>
+                                                    </div>
+                                                </layout:block>
+                                            </layout:block>
+										</layout:grid>
+									</search:result>
+								</search:result-list>
+
+								<!-- No results message -->
+								<search:no-results response="response"></search:no-results>
+							</track:clicks>
+						</layout:block>
+
+					</layout:grid>
+				</layout:block>
+			</layout:box>
+		</layout:block>
+
+	</layout:animate>
+
+</layout:grid>

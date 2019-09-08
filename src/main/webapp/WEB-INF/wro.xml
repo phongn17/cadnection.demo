@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<groups xmlns="http://www.isdc.ro/wro">
+
+    <group name="main">
+        <css>classpath:generated/lib/appkit-ui/dist/less/phoenix.all.less</css>
+        <css>/styles/twigkit.less</css>
+        <css>/styles/animations.css</css>
+        <js>/scripts/app.js</js>
+        <js>/scripts/controllers/main.js</js>
+        <js>/scripts/services/**.js</js>
+    </group>
+
+    <group name="techsoft">
+        <js>/scripts/techsoft/hoops_web_viewer_monolithic.js</js>
+        <js>/scripts/techsoft/web_viewer_ui.js</js>
+        <js>/scripts/techsoft/jquery-3.3.1.min.js</js>
+        <js>/scripts/techsoft/jquery-ui.min.js</js>
+        <js>/scripts/techsoft/jquery.ui.touch-punch.min.js</js>
+        <js>/scripts/techsoft/keymaster.min.js</js>
+        <js>/scripts/techsoft/iscroll.min.js</js>
+        <js>/scripts/techsoft/jquery.minicolors.min.js</js>
+        <css>/styles/techsoft/TreeControl.css</css>
+        <css>/styles/techsoft/Toolbar.css</css>
+        <css>/styles/techsoft/Common.css</css>
+        <css>/styles/techsoft/Desktop.css</css>
+        <css>/styles/techsoft/Mobile.css</css>
+        <css>/styles/techsoft/NoteText.css</css>
+        <css>/styles/techsoft/jquery-ui.min.css</css>
+        <css>/styles/techsoft/PropertyWindow.css</css>
+        <css>/styles/techsoft/ViewerSettings.css</css>
+        <css>/styles/techsoft/jquery.minicolors.css</css>
+    </group>
+
+    <group name="vendor">
+        <js>classpath:generated/lib/angular/angular.js</js>
+        <js>classpath:generated/lib/angular-animate/angular-animate.js</js>
+        <js>classpath:generated/lib/angular-cookies/angular-cookies.js</js>
+        <js>classpath:generated/lib/angular-sanitize/angular-sanitize.js</js>
+        <js>classpath:generated/lib/appkit-ui/dist/js/lightning.min.js</js>
+        <js>classpath:generated/lib/angular-ui-router/release/angular-ui-router.js</js>
+        <js>classpath:generated/lib/angular-resizable/src/angular-resizable.js</js>
+    </group>
+
+    <group name="angular">
+        <js>classpath:generated/lib/angular/angular.js</js>
+        <js>classpath:generated/lib/angular-resource/angular-resource.js</js>
+        <js>classpath:generated/lib/angular-touch/angular-touch.js</js>
+        <js>classpath:generated/lib/angular-animate/angular-animate.js</js>
+        <js>classpath:generated/lib/angular-cookies/angular-cookies.js</js>
+        <js>classpath:generated/lib/angular-sanitize/angular-sanitize.js</js>
+        <js>classpath:generated/lib/angular-ui-router/release/angular-ui-router.js</js>
+    </group>
+
+    <group name="lightning">
+        <js>classpath:generated/lib/appkit-ui/dist/js/lightning.min.js</js>
+    </group>
+    
+</groups>
